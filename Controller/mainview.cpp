@@ -9,9 +9,11 @@
 #include "View/cardqpushbutton.h"
 #include "Model/matchinggame.h"
 #include "Model/Deck.h"
+#include <QLabel>
+#include <QDebug>
 
 
-const int CARD_ROWS = 4;
+const int CARD_ROWS = 3;
 const int CARD_COLS = 8;
 
 MainView::MainView(QWidget *parent) :
@@ -65,7 +67,7 @@ MainView::MainView(QWidget *parent) :
     // set up shuffle button
 
     auto shuffleButton = new QPushButton();
-    shuffleButton->setText("Shuffle");
+    shuffleButton->setText("New Game");
     shuffleButton->setMinimumSize(QSize(128,20));
     shuffleButton->setMaximumSize(QSize(128,20));
     shuffleButton->setStyleSheet(QStringLiteral("background-color:aliceblue"));
@@ -76,8 +78,15 @@ MainView::MainView(QWidget *parent) :
     connect(shuffleButton,
             &QPushButton::clicked,
             this,
-            [this](){deck->shuffle();drawView();});
+            [this](){
+        deck->shuffle();
+        game = std::unique_ptr<MatchingGame>(new MatchingGame(CARD_ROWS * CARD_COLS, *deck));
+        drawView();
+    });
 
+    gameScore = new QLabel();
+    gameScore->setText("0");
+    hlshuffle->addWidget(gameScore);
 }
 
 MainView::~MainView()
@@ -125,7 +134,7 @@ void MainView::drawView()
         }
         }
     }
-
+    gameScore->setText(QString::number(game->getScore()));
 }
 
 
